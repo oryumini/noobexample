@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardMemo">
+
+
+<insert id="insert" parameterType="kr.co.from.board.dto.BoardMemoDTO">
+	<selectKey order="BEFORE" keyProperty="memoId" resultType="int">
+		select SEQ_BOARD_MEMO.NEXTVAL from dual
+	</selectKey>
+
+	INSERT INTO TB_BOARD_MEMO (
+		MEMO_ID, MEMO_CONTENTS, REG_DT, DOC_ID, USER_ID
+	) VALUES (
+		#{memoId}, #{memoContents}, SYSDATE, #{docId}, #{userId}
+	)
+</insert>
+
+<select id="selectOne" parameterType="Integer" resultType="kr.co.from.board.dto.BoardMemoDTO">
+
+	SELECT * FROM TB_BOARD_MEMO 
+	WHERE MEMO_ID = #{memoId}
+
+</select>
+
+
+<update id="update" parameterType="kr.co.from.board.dto.BoardMemoDTO">
+
+	UPDATE TB_BOARD_MEMO
+	SET MEMO_CONTENTS = #{memoContents}
+	WHERE MEMO_ID = #{memoId}
+
+</update>
+
+
+<select id="selectList" parameterType="Integer" resultType="kr.co.from.board.dto.BoardMemoDTO" >
+	
+	SELECT BD.*
+	, (SELECT NAME FROM TB_USER WHERE USER_ID = BD.USER_ID) AS NAME
+	FROM TB_BOARD_MEMO BD
+	WHERE	DOC_ID = #{docId}
+	ORDER BY MEMO_ID DESC
+	
+</select>
+
+
+<delete id="delete" parameterType="Integer">
+
+DELETE
+FROM TB_BOARD_MEMO
+WHERE MEMO_ID = #{memoId}
+
+</delete>
+
+<delete id="deleteByDocId" parameterType="Integer">
+
+DELETE
+FROM TB_BOARD_MEMO
+WHERE DOC_ID = #{docId}
+
+</delete>
+
+</mapper>

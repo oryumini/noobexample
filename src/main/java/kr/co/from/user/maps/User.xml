@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="User">
+ <insert id="insertData" parameterType="kr.co.from.user.dto.UserDTO">
+ 	<!--  key property는 DTO에 대응하는 것으로. -->
+ <selectKey order="BEFORE" keyProperty="userId" resultType="int">
+ 	select SEQ_USER.NEXTVAL from dual 
+ </selectKey>
+ 
+ INSERT INTO TB_USER (
+ 	USER_ID, LGN_ID, LGN_PW, EMAIL, PHONE, NAME, REG_DT, STATUS
+ ) VALUES (
+ 	#{userId}, #{lgnId}, #{lgnPw}, #{email}, #{phone}, #{name}, SYSDATE, #{status}
+ )
+ 
+ </insert>
+ 
+ 
+ <select id="selectOne" parameterType="Integer" resultType="kr.co.from.user.dto.UserDTO">
+ 
+	SELECT * FROM TB_USER
+	WHERE USER_ID = #{userId}
+ 
+ </select>
+ 
+  <select id="selectOneById" parameterType="String" resultType="kr.co.from.user.dto.UserDTO">
+ 
+	SELECT * FROM TB_USER
+	WHERE LGN_ID = #{lgnId}
+ 
+ </select>
+ 
+ <update id="update" parameterType="kr.co.from.user.dto.UserDTO">
+ 
+ UPDATE TB_USER
+ SET	EMAIL = #{email},
+ 				PHONE = #{phone},
+ 				NAME = #{name},
+ 				STATUS = #{status}
+ 	WHERE USER_ID = #{userId}
+ 				 
+ </update>
+ 
+ <update id="updatePass" parameterType="kr.co.from.user.dto.UserDTO">
+ 
+ UPDATE TB_USER
+ SET	LGN_PW = #{lgnPw}
+ WHERE USER_ID = #{userId}
+ 				 
+ </update>
+ 
+ <delete id="delete" parameterType="Integer">
+ 
+  DELETE FROM TB_USER
+  WHERE USER_ID = #{userId}
+  
+ </delete>
+ 
+</mapper>

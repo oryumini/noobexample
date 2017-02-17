@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardMap">
+
+
+<insert id="insert" parameterType="kr.co.from.board.dto.BoardMapDTO">
+<selectKey order="BEFORE" keyProperty="mapId" resultType="int">
+ select SEQ_BOARD_MAP.NEXTVAL from dual
+</selectKey>
+
+INSERT INTO TB_BOARD_MAP (
+ MAP_ID, MAP_NM, REG_DT, DELETE_YN, MEMO_YN, MAP_ORDER 
+ ) VALUES (
+ #{mapId}, #{mapNm}, SYSDATE, #{deleteYN}, #{memoYN}, #{mapOrder}
+ )
+
+</insert>
+
+<select id="selectOne" parameterType="Integer" resultType="kr.co.from.board.dto.BoardMapDTO">
+
+SELECT * FROM TB_BOARD_MAP
+WHERE MAP_ID = #{mapId}
+
+</select>
+
+<update id="update" parameterType="kr.co.from.board.dto.BoardMapDTO">
+
+UPDATE TB_BOARD_MAP
+SET MAP_NM = #{mapNm}
+			, DELETE_YN = #{deleteYn}
+			, MEMO_YN = #{memoYn}
+			, MAP_ORDER = #{mapOrder}
+WHERE MAP_ID = #{mapId}
+
+</update>
+
+
+<delete id="delete" parameterType="Integer">
+
+DELETE
+FROM TB_BOARD_MAP
+WHERE MAP_ID = #{mapId}
+
+</delete>
+
+
+
+<select id="selectList" resultType="kr.co.from.board.dto.BoardMapDTO">
+
+SELECT * FROM TB_BOARD_MAP
+
+</select>
+</mapper>

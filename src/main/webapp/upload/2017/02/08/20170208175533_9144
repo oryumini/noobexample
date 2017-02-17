@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	
+		<meta charset="EUC-KR">
+		<title>Insert title here</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script>
+			$(document).ready(function(){
+				$("#button").click(function(){																//이렇게 만들어놓은 이벤트는 $("#button").click() 이런 식으로 재활용할 수 있다. line 20에 써놓은 것처럼.
+					$("#p").hide(200).show(200).hide(200).show(200).hide(200);     // $("#button").click()으로 이하의 액션을 수행함. 재귀하여 자신이 자신의 이벤트를 불러오는 것도 가능하다. 이러면 무한반복이지만.
+				});
+				$("#button2").click(function(){
+					$("#p").show(200).hide(200).show(200).hide(200).show(200);
+				});
+				$("#button3").click(function(){
+					$("#p2").toggle(200);
+				});
+				$("#button4").click(function(){
+					$("#button2").click();
+				});
+				$("#button5").click(function(){
+					$("#div1").fadeTo("slow", 0.15, function(){
+						$("#div1").fadeTo("slow", 1, function(){
+							$("#div1").fadeTo("slow", 0.15, function(){
+								$("#div1").fadeTo("slow", 1);
+							});
+						});
+					});
+					$("#div2").fadeTo("slow", 0.4, function(){
+						$("#div2").fadeTo("slow", 1, function(){
+							$("#div2").fadeTo("slow", 0.4, function(){
+								$("#div2").fadeTo("slow", 1);
+							});
+						});
+					});
+					$("#div3").fadeTo("slow", 0.7, function(){
+							$("#div3").fadeTo("slow", 1, function(){
+								$("#div3").fadeTo("slow", 0.7, function(){
+									$("#div3").fadeTo("slow", 1);
+								});
+							});
+					});
+				});
+				$("#flip").click(function(){
+					$("#panel").slideToggle("slow");
+				});
+				
+				$("#button6").click(function(){
+					$("#div6").animate({
+						left: '1800px',
+						opacity: '0.7'
+					}, "slow");
+					$("#div6").animate({
+						top: '800px',
+						opacity: '0.4'
+					}, "slow");
+					$("#div6").animate({
+						left: '10px',
+						opacity: '0.7'
+					}, "slow");
+					$("#div6").animate({
+						top: '10px',
+						opacity: '1.0'
+					}, "slow", 
+					function(){
+						$("#button6").click();
+					});
+				});
+				
+			});
+		</script>
+		
+		<style>
+			#panel, #flip {
+				padding: 5px;
+				text-align: center;
+				background-color: #e5eecc;
+				border: solid 1px #c3c3c3;
+			}
+			
+			#panel {
+				padding: 50px;
+				display: none;
+			}
+		</style>
+		
+	</head>
+	<body>
+	
+		<div id="div6" style="width: 80px; height: 80px; background-color: #999999; position: absolute;"></div>
+		
+		
+		<button id="button">hide</button>
+		<button id="button2">show</button>
+		<br><br>
+		
+		<button id="button3">toggle</button>
+		<br><br>
+		
+		<button id="button4">fade toggle</button>
+		<button id="button5">fade to2</button>
+		
+		<br><br>
+		<button id="button6">div6</button>
+		<br><br>
+		
+		<p id="p">This is a paragraph will little content.</p>
+		<p id="p2">This paragraph can't hide</p>
+		
+		<div id="div1" style="width: 80px; height: 80px; background-color: red;"></div>
+		<div id="div2" style="width: 80px; height: 80px; background-color: blue"></div>
+		<div id="div3" style="width: 80px; height: 80px; background-color: yellow"></div>
+		
+		<br><br>
+		
+		<div id="flip">Click to slide down panel</div>
+		<div id="panel">Hello World!</div>
+		
+		<br><br>
+		
+		
+	</body>
+</html>

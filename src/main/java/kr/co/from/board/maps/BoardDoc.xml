@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardDoc">
+
+
+<insert id="insert" parameterType="kr.co.from.board.dto.BoardDocDTO">
+	<selectKey order="BEFORE" keyProperty="docId" resultType="int">
+		select SEQ_BOARD_DOC.NEXTVAL from dual
+	</selectKey>
+
+	INSERT INTO TB_BOARD_DOC (
+		DOC_ID, TITLE, DOC_CONTENTS, REG_DT, USER_ID, MAP_ID, HIT
+	) VALUES (
+		#{docId}, #{title}, #{docContents}, SYSDATE, #{userId}, #{mapId}, -1
+	)
+</insert>
+
+<select id="selectOne" parameterType="Integer" resultType="kr.co.from.board.dto.BoardDocDTO">
+	
+	SELECT BD.*
+	, (SELECT NAME FROM TB_USER WHERE USER_ID = BD.USER_ID) AS NAME
+	FROM TB_BOARD_DOC BD
+	WHERE DOC_ID = #{docId}
+
+</select>
+
+
+<update id="update" parameterType="kr.co.from.board.dto.BoardDocDTO">
+
+	UPDATE TB_BOARD_DOC
+	SET TITLE = #{title}
+		, DOC_CONTENTS = #{docContents}
+	WHERE DOC_ID = #{docId}
+
+</update>
+
+
+<update id="updateHit" parameterType="Integer">
+
+	UPDATE TB_BOARD_DOC
+	SET HIT = HIT + 1
+	WHERE DOC_ID = #{docId}
+
+</update>
+
+
+<update id="updateMemoNumPlus" parameterType="Integer">
+
+	UPDATE TB_BOARD_DOC
+	SET MEMO_NUM = MEMO_NUM + 1
+	WHERE DOC_ID = #{docId}
+
+</update>
+
+
+<update id="updateMemoNumMinus" parameterType="Integer">
+
+	UPDATE TB_BOARD_DOC
+	SET MEMO_NUM = MEMO_NUM - 1
+	WHERE DOC_ID = #{docId}
+
+</update>
+
+
+<select id="selectList" parameterType="kr.co.from.board.dto.BoardSearchDTO" resultType="kr.co.from.board.dto.BoardDocDTO" >
+	
+SELECT A.*
+  ,(SELECT NAME FROM TB_USER WHERE USER_ID = A.USER_ID) AS NAME
+  , (SELECT MAP_NM FROM TB_BOARD_MAP WHERE MAP_ID = A.MAP_ID) AS MAP_NM
+FROM (
+  SELECT 
+    ROWNUM AS RNUM
+    , TB.*    
+  FROM TB_BOARD_DOC TB
+  			, TB_BOARD_MAP TBM
+  WHERE ROWNUM <![CDATA[<=]]> (#{page}*#{rows})
+  
+  			AND TB.MAP_ID = TBM.MAP_ID
+  			AND TBM.PAR_MAP_ID != 2
+  			
+  		<if test="mapId neq null">
+  			AND TB.MAP_ID = #{mapId}
+  		</if>
+    <if test="searchType eq 'T'.toString()">
+    	AND TB.TITLE LIKE '%' || #{searchText} || '%'			<!-- 문장 중간에 있는 것을 찾기 위한 문법. -->
+    </if>
+    <if test="searchType eq 'C'.toString()">
+    	AND TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'
+    </if>
+    <if test="searchType eq 'TC'.toString()">
+     AND (TB.TITLE LIKE '%' || #{searchText} || '%'
+     					OR TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'			<!-- OR 조건은 둘다 수행하므로 느리지만 여기선 필수적. -->
+     				)
+    </if>
+    <if test="searchType eq 'R'.toString()">
+    	AND TB.USER_ID IN (												<!-- IN도 OR와 동일하므로 최대한 피하는 것이 좋다. -->
+    		SELECT USER_ID
+    		FROM TB_USER
+    		WHERE NAME LIKE '%' || #{searchText} || '%'
+    	)
+    </if>
+  ORDER BY DOC_ID DESC
+) A
+WHERE RNUM <![CDATA[>]]> (#{page}-1)*#{rows}
+	
+</select>
+
+<select id="selectListPhoto" parameterType="kr.co.from.board.dto.BoardSearchDTO" resultType="kr.co.from.board.dto.BoardDocDTO" >
+	
+SELECT A.*
+  ,(SELECT NAME FROM TB_USER WHERE USER_ID = A.USER_ID) AS NAME
+FROM (
+  SELECT 
+    ROWNUM AS RNUM
+    , TB.*
+    , TBM.MAP_NM
+  FROM TB_BOARD_DOC TB
+  			, TB_BOARD_MAP TBM
+  WHERE ROWNUM <![CDATA[<=]]> (#{page}*#{rows})
+  
+  		 AND TB.MAP_ID = TBM.MAP_ID
+  		 
+  		<if test="mapId eq null">
+    AND TBM.PAR_MAP_ID = 2
+    </if>
+  		<if test="mapId neq null">
+  			AND TB.MAP_ID = #{mapId}
+  		</if>
+    <if test="searchType eq 'T'.toString()">
+    	AND TB.TITLE LIKE '%' || #{searchText} || '%'			<!-- 문장 중간에 있는 것을 찾기 위한 문법. -->
+    </if>
+    <if test="searchType eq 'C'.toString()">
+    	AND TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'
+    </if>
+    <if test="searchType eq 'TC'.toString()">
+     AND (TB.TITLE LIKE '%' || #{searchText} || '%'
+     					OR TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'			<!-- OR 조건은 둘다 수행하므로 느리지만 여기선 필수적. -->
+     				)
+    </if>
+    <if test="searchType eq 'R'.toString()">
+    	AND TB.USER_ID IN (												<!-- IN도 OR와 동일하므로 최대한 피하는 것이 좋다. -->
+    		SELECT USER_ID
+    		FROM TB_USER
+    		WHERE NAME LIKE '%' || #{searchText} || '%'
+    	)
+    </if>
+  ORDER BY DOC_ID DESC
+) A
+WHERE RNUM <![CDATA[>]]> (#{page}-1)*#{rows}
+	
+</select>
+
+
+<select id="selectListMain" resultType="kr.co.from.board.dto.BoardDocDTO" >
+	
+SELECT A.*
+  ,(SELECT NAME FROM TB_USER WHERE USER_ID = A.USER_ID) AS NAME
+  , (SELECT MAP_NM FROM TB_BOARD_MAP WHERE MAP_ID = A.MAP_ID) AS MAP_NM
+FROM (
+  SELECT 
+    ROWNUM AS RNUM
+    , TB.*    
+  FROM TB_BOARD_DOC TB
+  WHERE ROWNUM <![CDATA[<=]]> 10
+  ORDER BY DOC_ID DESC
+) A
+WHERE RNUM <![CDATA[>]]> 0
+	
+</select>
+
+
+
+<select id="selectCount" parameterType="kr.co.from.board.dto.BoardSearchDTO" resultType="java.lang.Integer" >
+	
+SELECT COUNT(*) FROM TB_BOARD_DOC TB, TB_BOARD_MAP TBM
+WHERE 1=1
+					AND TB.MAP_ID = TBM.MAP_ID
+  			AND PAR_MAP_ID != 2
+					<if test="mapId neq null">
+  			AND TB.MAP_ID = #{mapId}
+  		</if>
+    <if test="searchType eq 'T'.toString()">
+    	AND TB.TITLE LIKE '%' || #{searchText} || '%'			<!-- 문장 중간에 있는 것을 찾기 위한 문법. -->
+    </if>
+    <if test="searchType eq 'C'.toString()">
+    	AND TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'
+    </if>
+    <if test="searchType eq 'TC'.toString()">
+     AND (TB.TITLE LIKE '%' || #{searchText} || '%'
+     					OR TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'			<!-- OR 조건은 둘다 수행하므로 느리지만 여기선 필수적. -->
+     				)
+    </if>
+    <if test="searchType eq 'R'.toString()">
+    	AND TB.USER_ID IN (												<!-- IN도 OR와 동일하므로 최대한 피하는 것이 좋다. -->
+    		SELECT USER_ID
+    		FROM TB_USER
+    		WHERE NAME LIKE '%' || #{searchText} || '%'
+    	)
+    </if>
+	
+</select>
+
+<select id="selectCountPhoto" parameterType="kr.co.from.board.dto.BoardSearchDTO" resultType="java.lang.Integer" >
+	
+SELECT COUNT(*)
+FROM TB_BOARD_DOC TB,
+					TB_BOARD_MAP TBM
+		
+WHERE TB.MAP_ID = TBM.MAP_ID
+   	
+					<if test="mapId eq null">
+					 AND TBM.PAR_MAP_ID = 2
+					</if>
+					<if test="mapId neq null">
+  			AND TB.MAP_ID = #{mapId}
+  		</if>
+    <if test="searchType eq 'T'.toString()">
+    	AND TB.TITLE LIKE '%' || #{searchText} || '%'			<!-- 문장 중간에 있는 것을 찾기 위한 문법. -->
+    </if>
+    <if test="searchType eq 'C'.toString()">
+    	AND TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'
+    </if>
+    <if test="searchType eq 'TC'.toString()">
+     AND (TB.TITLE LIKE '%' || #{searchText} || '%'
+     					OR TB.DOC_CONTENTS LIKE '%' || #{searchText} || '%'			<!-- OR 조건은 둘다 수행하므로 느리지만 여기선 필수적. -->
+     				)
+    </if>
+    <if test="searchType eq 'R'.toString()">
+    	AND TB.USER_ID IN (												<!-- IN도 OR와 동일하므로 최대한 피하는 것이 좋다. -->
+    		SELECT USER_ID
+    		FROM TB_USER
+    		WHERE NAME LIKE '%' || #{searchText} || '%'
+    	)
+    </if>
+	
+</select>
+
+
+
+<select id="selectListByUserId" parameterType="kr.co.from.board.dto.BoardSearchDTO" resultType="kr.co.from.board.dto.BoardDocDTO" >
+	
+<!-- 	SELECT BD.*
+	, (SELECT NAME FROM TB_USER WHERE USER_ID = BD.USER_ID) AS NAME
+	, (SELECT MAP_NM FROM TB_BOARD_MAP WHERE MAP_ID = BD.MAP_ID) AS MAP_NM
+	FROM TB_BOARD_DOC BD
+	WHERE USER_ID = #{userId}
+	ORDER BY DOC_ID DESC
+	 -->
+	 
+	SELECT A.*
+  , (SELECT NAME FROM TB_USER WHERE USER_ID = A.USER_ID) AS NAME
+  , (SELECT MAP_NM FROM TB_BOARD_MAP WHERE MAP_ID = A.MAP_ID) AS MAP_NM
+FROM (
+  SELECT 
+    ROWNUM AS RNUM
+    , TB.*    
+  FROM TB_BOARD_DOC TB
+  WHERE ROWNUM <![CDATA[<=]]> (#{page}*#{rows})
+    <if test="userId neq null">
+    AND USER_ID = #{userId}
+    </if>
+  ORDER BY DOC_ID DESC
+) A
+WHERE RNUM <![CDATA[>]]> (#{page}-1)*#{rows}
+	
+</select>
+
+
+<select id="selectCountByUserId" parameterType="kr.co.from.board.dto.BoardSearchDTO" resultType="java.lang.Integer" >
+	
+SELECT COUNT(*) FROM TB_BOARD_DOC BD
+WHERE 1=1
+				<if test="userId neq null">
+    	AND USER_ID = #{userId}
+    </if>
+				
+	
+</select>
+
+<delete id="delete" parameterType="Integer">
+
+DELETE
+FROM TB_BOARD_DOC
+WHERE DOC_Id = #{docId}
+
+</delete>
+
+</mapper>

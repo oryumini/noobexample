@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BoardFile">
+
+
+<insert id="insertData" parameterType="kr.co.from.board.dto.BoardFileDTO">
+
+
+	INSERT INTO TB_BOARD_FILE (
+		FILE_ID, ORG_FILE_NM, NEW_FILE_NM, EXT, FSIZE, FPATH, DOC_ID, REG_DT, FILE_TYPE
+	) VALUES (
+		SEQ_BOARD_FILE.NEXTVAL, #{orgFileNm}, #{newFileNm}, #{ext}, #{fsize}, #{fpath}, #{docId}, SYSDATE, #{fileType}
+	)
+</insert>
+
+
+<select id="selectList" parameterType="Integer" resultType="kr.co.from.board.dto.BoardFileDTO">
+
+	SELECT * FROM TB_BOARD_FILE
+	WHERE DOC_ID = #{docId}
+
+</select>
+
+
+<select id="selectOne" parameterType="Integer" resultType="kr.co.from.board.dto.BoardFileDTO">
+
+	SELECT * FROM TB_BOARD_FILE
+	WHERE FILE_ID = #{fileId}
+
+</select>
+
+
+<delete id="deleteWithDoc" parameterType="Integer">
+
+DELETE
+FROM TB_BOARD_FILE
+WHERE DOC_ID = #{docId}
+
+</delete>
+
+
+<delete id="deleteData" parameterType="Integer">
+
+DELETE
+FROM TB_BOARD_FILE
+WHERE FILE_ID = #{fileId}
+
+</delete>
+
+
+
+</mapper>
