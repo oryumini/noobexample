@@ -27,8 +27,8 @@
      						
      		<!-- 세션의 아이디와 작성자의 아이디 일치 여부에 따라 수정, 삭제 아이콘 표시 -->
       	<c:if test="${user.userId == item2.userId}">
-      		&nbsp;&nbsp;
-      <a href="javascript:removeMemo(${item2.memoId})" class="disPB btnS"><button class="smlButton">삭제</button></a>
+      			&nbsp;&nbsp;
+      			<a href="javascript:removeMemo(${item2.memoId})" class="disPB btnS"><button class="smlButton">삭제</button></a>
        </c:if>			
          
       </td>
